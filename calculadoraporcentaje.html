@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora % Ancho para Adobe Portfolio</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; display: flex; justify-content: center; }
+        .container { max-width: 600px; width: 100%; }
+        h1 { text-align: center; }
+        h2 { font-size: 1.2em; margin-top: 20px; }
+        label, p { display: block; margin-top: 10px; }
+        input, button { width: 100%; padding: 8px; margin-top: 5px; }
+        hr { margin: 20px 0; }
+        #tablaResultados { margin-top: 20px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>CALCULADORA PORCENTAJE ADOBE PORTFOLIO</h1>
+
+    <h2>Calculadora para igualar el lado mayor</h2>
+    <p>Calcula el % de ancho para igualar el tamaño físico del lado mayor de imágenes de orientaciones distintas (vertical ↔ horizontal).</p>
+    <label>Ancho referencia (px):</label>
+    <input type="number" id="anchoRef">
+    <label>Alto referencia (px):</label>
+    <input type="number" id="altoRef">
+    <label>% de ancho usado en referencia:</label>
+    <input type="number" id="porcentajeRef">
+    <button onclick="calcularLadoMayor()">Calcular</button>
+    <p id="resultadoLadoMayor"></p>
+
+    <hr>
+
+    <h2>Cálculo individual</h2>
+    <p>Calcula el % de ancho para una imagen vertical tomando como referencia otra imagen vertical.</p>
+    <label>Ancho de la imagen modelo (px):</label>
+    <input type="number" id="anchoModelo">
+    <label>% de ancho aplicado a la imagen modelo:</label>
+    <input type="number" id="porcentajeModelo">
+    <label>Ancho de la nueva imagen vertical (px):</label>
+    <input type="number" id="anchoNueva">
+    <button onclick="calcularPorcentajeEquivalente()">Calcular</button>
+    <p id="resultadoIndividual"></p>
+
+    <hr>
+
+    <h2>Calcular % para proporciones comunes</h2>
+    <p>Calcula el % de ancho necesario para igualar la altura visual de una imagen horizontal de referencia.</p>
+    <label>Ancho de la imagen horizontal de referencia (px):</label>
+    <input type="number" id="anchoHorizontal">
+    <label>Alto de la imagen horizontal de referencia (px):</label>
+    <input type="number" id="altoHorizontal">
+    <label>% de ancho aplicado a la imagen horizontal:</label>
+    <input type="number" id="porcentajeHorizontal">
+    <button onclick="mostrarTablaProporciones()">Mostrar tabla de proporciones comunes</button>
+
+    <div id="tablaResultados"></div>
+</div>
+<script>
+function calcularLadoMayor() {
+    try {
+        const ancho = parseFloat(document.getElementById('anchoRef').value);
+        const alto = parseFloat(document.getElementById('altoRef').value);
+        const porcentaje = parseFloat(document.getElementById('porcentajeRef').value);
+        if (isNaN(ancho) || isNaN(alto) || isNaN(porcentaje)) throw 'error';
+        const resultado = porcentaje * (alto / ancho);
+        document.getElementById('resultadoLadoMayor').innerText = `Porcentaje para nueva foto: ${resultado.toFixed(2)}%`;
+    } catch {
+        alert('Por favor, introduce todos los valores numéricos correctamente.');
+    }
+}
+
+function calcularPorcentajeEquivalente() {
+    try {
+        const anchoModelo = parseFloat(document.getElementById('anchoModelo').value);
+        const porcentajeModelo = parseFloat(document.getElementById('porcentajeModelo').value);
+        const anchoNueva = parseFloat(document.getElementById('anchoNueva').value);
+        if (isNaN(anchoModelo) || isNaN(porcentajeModelo) || isNaN(anchoNueva)) throw 'error';
+        const resultado = porcentajeModelo * (anchoNueva / anchoModelo);
+        document.getElementById('resultadoIndividual').innerText = `Debes aplicar un ancho del: ${resultado.toFixed(2)}% en Adobe Portfolio`;
+    } catch {
+        alert('Por favor, introduce valores numéricos válidos.');
+    }
+}
+
+function mostrarTablaProporciones() {
+    try {
+        const ancho = parseFloat(document.getElementById('anchoHorizontal').value);
+        const alto = parseFloat(document.getElementById('altoHorizontal').value);
+        const porcentaje = parseFloat(document.getElementById('porcentajeHorizontal').value);
+        if (isNaN(ancho) || isNaN(alto) || isNaN(porcentaje)) throw 'error';
+
+        const alturaVisual = porcentaje * (alto / ancho);
+
+        const proporciones = [
+            ['1:1', 1, 1], ['4:5', 4, 5], ['8.5:11', 8.5, 11],
+            ['5:7', 5, 7], ['2:3', 2, 3], ['3:4', 3, 4],
+            ['9:16', 9, 16], ['10:16', 10, 16]
+        ];
+
+        let html = '<h3>Tabla de proporciones verticales</h3>';
+        html += '<ul>';
+        proporciones.forEach(([nombre, aw, ah]) => {
+            const porcentajeProporcion = alturaVisual * (aw / ah);
+            html += `<li>${nombre} → ${porcentajeProporcion.toFixed(2)}%</li>`;
+        });
+        html += '</ul>';
+
+        html += '<h3>Proporción personalizada</h3>';
+        html += '<label>Ancho (px):</label><input type="number" id="customAncho">';
+        html += '<label>Alto (px):</label><input type="number" id="customAlto">';
+        html += '<button onclick="calcularCustom(' + alturaVisual + ')">Calcular % para esta proporción</button>';
+        html += '<p id="resultadoCustom"></p>';
+
+        document.getElementById('tablaResultados').innerHTML = html;
+
+    } catch {
+        alert('Por favor, introduce valores numéricos válidos en la sección de referencia.');
+    }
+}
+
+function calcularCustom(alturaVisual) {
+    try {
+        const aw = parseFloat(document.getElementById('customAncho').value);
+        const ah = parseFloat(document.getElementById('customAlto').value);
+        if (isNaN(aw) || isNaN(ah)) throw 'error';
+        const porcentajeCustom = alturaVisual * (aw / ah);
+        document.getElementById('resultadoCustom').innerText = `→ % de ancho recomendado: ${porcentajeCustom.toFixed(2)}%`;
+    } catch {
+        alert('Introduce valores válidos para ancho y alto.');
+    }
+}
+</script>
+
+</body>
+</html>
